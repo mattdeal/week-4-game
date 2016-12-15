@@ -21,23 +21,40 @@
 </head>
 <body>
 <div class="container">
-	<div class="row">
-		<div id="character-select" class="col-md-12 col-sm-12"></div>
+	<div id="row-character-select" class="row">
+		<div class="col-md-12 col-sm-12">
+			<h1>Character Select</h1>
+		</div>
+		<div class="col-md-12 col-sm-12">
+			<div id="character-select" class="row">
+				<!-- todo: display 4 characters -->
+			</div>
+		</div>
 	</div> <!-- End Character Select Row -->
 
-	<div class="row">
+	<div id="row-battle" class="row">
 		<div class="col-md-3 col-sm-hidden col-xs-hidden">
-			
+			<!-- todo: display player stats -->
 		</div> <!-- End Player column -->
 
-		<div class="col-md-6">
-			
+		<div class="col-md-6 col-sm-12 col-xs-12">
+			<div class="row">
+				<!-- todo: show characters on either side -->
+				<div id="player" class="col-md-6 col-sm-6 col-xs-6"></div>
+				<div id="defender" class="col-md-6 col-sm-6 col-xs-6"></div>
+			</div> <!-- End Battle Character Row -->
+			<div class="row">
+				<div class="col-md-12 col-sm-12 col-xs-12">
+					<button class="btn btn-danger btn-block">Battle!</button>
+				</div>
+			</div> <!-- End Battle Button Row -->
+			<div class="row"></div> <!-- End Battle Info -->
 		</div> <!--- End Battle column -->
 
 		<div class="col-md-3">
-			
+			<!-- todo: show remaining defenders -->
 		</div> <!-- End Defender column -->
 	</div> <!-- End Battle Row -->
-</div>
+</div> <!-- End container -->
 </body>
 </html>
