@@ -21,7 +21,7 @@ function Character(id, name, healthPoints, baseAttackPower, counterAttackPower, 
 	this.name = name;
 }
 
-Character.prototype.isDead = function {
+Character.prototype.isDead = function() {
 	return (this.healthPoints < 1);
 }
 
@@ -30,35 +30,53 @@ Character.prototype.isDead = function {
 // BEGIN Game //
 
 function Game() {
-	var STATE_CHARACTER_SELECT = 0;
-	var STATE_DEFENDER_SELECT = 1;
-	var STATE_IN_BATTLE = 2;
-	var STATE_VICTORY = 3;
-	var STATE_GAME_OVER = 4;
+	this.STATE_CHARACTER_SELECT = 0;
+	this.STATE_DEFENDER_SELECT = 1;
+	this.STATE_IN_BATTLE = 2;
+	this.STATE_VICTORY = 3;
+	this.STATE_GAME_OVER = 4;
 
-	var gameState;
+	this.gameState;
+	this.characters;
+	this.player;
+	this.defender;	
 
-	var characters = [];
-	var player;
-	var defender;	
+	this.maxHealthPoints;
+	this.maxBaseAttackPower;
+	this.maxCounterAttackPower;
 }
 
 Game.prototype.setup = function() {
 	// create characters - id, name, hp, atk, counter, imgHeadshot, imgFull
 	//todo: imgFull
-	characters.push(new Character(0, 'Luke', 10, 4, 5, 'luke-headshot.png', ''));
-	characters.push(new Character(1, 'Darth Vader', 20, 3, 4, 'vader-headshot.png', ''));
-	characters.push(new Character(2, 'Boba Fett', 30, 2, 3, 'boba-headshot.png', ''));
-	characters.push(new Character(3, 'Yoda', 40, 1, 2, 'yoda-headshot.png', ''));
+	this.characters = [];
+	this.characters.push(new Character(0, 'Luke', 10, 3, 3, 'luke-headshot.png', ''));
+	this.characters.push(new Character(1, 'Darth Vader', 20, 4, 4, 'vader-headshot.png', ''));
+	this.characters.push(new Character(2, 'Boba Fett', 30, 2, 5, 'boba-headshot.png', ''));
+	this.characters.push(new Character(3, 'Yoda', 40, 1, 2, 'yoda-headshot.png', ''));
+
+	this.maxHealthPoints = 0;
+	this.maxBaseAttackPower = 0;
+	this.maxCounterAttackPower = 0;
+
+	for (i in this.characters) {
+		this.maxHealthPoints < this.characters[i].healthPoints ? this.maxHealthPoints = this.characters[i].healthPoints : null;
+		this.maxBaseAttackPower < this.characters[i].attackPower ? this.maxBaseAttackPower = this.characters[i].attackPower : null;
+		this.maxCounterAttackPower < this.characters[i].counterAttackPower ? this.maxCounterAttackPower = this.characters[i].counterAttackPower : null;
+	}
+
+	// console.log('maxHealthPoints = ' + this.maxHealthPoints);
+	// console.log('maxBaseAttackPower = ' + this.maxBaseAttackPower);
+	// console.log('maxCounterAttackPower = ' + this.maxCounterAttackPower);
 
 	// reset player
-	player = null;
+	this.player = null;
 
 	// reset defender
-	defender = null;
+	this.defender = null;
 
 	// reset gameState
-	gameState = STATE_CHARACTER_SELECT;
+	this.gameState = this.STATE_CHARACTER_SELECT;
 }
 
 Game.prototype.resolveAttack = function(char1, char2) {
@@ -66,14 +84,24 @@ Game.prototype.resolveAttack = function(char1, char2) {
 	char1.healthPoints -= char2.counterAttackPower;
 	char1.attackPower += char1.baseAttackPower;
 
-	updateGameState();
+	this.updateGameState();
 }
 
 Game.prototype.selectPlayer = function(characterId) {
-	//todo: set player variable
-	player 
-	//todo: remove player variable from characters
-	//todo: set gameState to select defender
+	for (i in this.characters) {
+		if (this.characters[i].id === characterId) {
+			// set player variable
+			this.player = this.characters[i];
+
+			// remove player from characters
+			this.characters.splice(i);
+
+			// set gameState
+			this.gameState = this.STATE_DEFENDER_SELECT;
+
+			return;
+		}
+	}
 }
 
 Game.prototype.selectDefender = function(characterId) {
@@ -83,14 +111,14 @@ Game.prototype.selectDefender = function(characterId) {
 }
 
 Game.prototype.updateGameState = function() {
-	if (player.healthPoints < 1){
+	if (this.player.healthPoints < 1){
 		// todo: player is dead
 		// todo: set gameState to gameOver
 	}
 
-	if (defender.healthPoints < 1) {
+	if (this.defender.healthPoints < 1) {
 		// current defender is dead
-		if (characters.length < 1) {
+		if (this.characters.length < 1) {
 			// todo: player wins
 			// todo: set gameState to victory
 		} else {
@@ -100,11 +128,11 @@ Game.prototype.updateGameState = function() {
 	}
 }
 
+// END Game
+
 var game;
 
 $(document).ready(function() {
-	console.log('document ready');
-
 	game = new Game();
 	game.setup();
 
@@ -114,26 +142,70 @@ $(document).ready(function() {
 });
 
 function buildUi() {
-	//todo: draw character panels in character select row
+	// draw character panels in character select row
 	var charSelect = $('#character-select');
 
 	for (i in game.characters) {
 		var panel = buildCharacterPanel(game.characters[i]);
 		charSelect.append(panel);
 	}
+}
 
-	console.log('end buildUi');
+function buildProgressBar(progressValue, progressType) {
+	var progress = $('<div></div>');
+	progress.addClass('progress');
+	progress.html('<div class="progress"><div class="progress-bar ' 
+		+ progressType 
+		+ '" role="progressbar" aria-valuenow="' 
+		+ progressValue 
+		+ '" aria-valuemin="0" aria-valuemax="100" style="width: '
+		+ progressValue 
+		+ '%;"></div></div>');
+
+	return progress;
 }
 
 function buildCharacterPanel(character) {
+	// headshot
 	var img = $('<img>');
 	img.addClass('headshot');
 	img.attr('src', 'assets/images/' + character.imgHeadshot);
 
-	var panel = $('<div>');
+	var imgContainer = $('<a></a>');
+	imgContainer.addClass('thumbnail');
+	imgContainer.attr('href','#');
+	imgContainer.append(img);
+
+	// stat bars
+	var healthPoints = buildProgressBar(parseInt(character.healthPoints/game.maxHealthPoints*100), 'progress-bar-success');
+	var baseAttackPower = buildProgressBar(character.baseAttackPower/game.maxBaseAttackPower*100, 'progress-bar-warning');
+	var counterAttackPower = buildProgressBar(character.counterAttackPower/game.maxCounterAttackPower*100, 'progress-bar-danger');
+
+	// panel header
+	var panelHeader = $('<div class="panel-heading"><h4>' + character.name + '</h4></div>');
+
+	// panel body
+	var panelBody = $('<div class="panel-body"></div>');
+	panelBody.append(imgContainer);
+	panelBody.append($('<div>Health</div>'));
+	panelBody.append(healthPoints);
+	panelBody.append($('<div>Attack</div>'));
+	panelBody.append(baseAttackPower);
+	panelBody.append($('<div>Counter</div>'));
+	panelBody.append(counterAttackPower);
+
+	// panel
+	var panel = $('<div class="panel panel-default"></div>');
 	panel.id = character.id;
-	panel.addClass('col-md-3 col-sm-3 col-xs-3');
-	panel.append(img);
+	panel.append(panelHeader);
+	panel.append(panelBody);
+
+	// col containing character
+	var characterPanel = $('<div class="col-md-3 col-sm-3 col-xs-3"></div>');
+	characterPanel.append(panel);
+	//todo: set data character id
+
+	return characterPanel;
 }
 
 function updateUi(){
