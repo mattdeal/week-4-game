@@ -50,10 +50,10 @@ Game.prototype.setup = function() {
 	// create characters - id, name, hp, atk, counter, imgHeadshot, imgFull
 	//todo: imgFull
 	this.characters = [];
-	this.characters.push(new Character(0, 'Luke', 10, 3, 3, 'luke-headshot.png', ''));
-	this.characters.push(new Character(1, 'Darth Vader', 20, 4, 4, 'vader-headshot.png', ''));
-	this.characters.push(new Character(2, 'Boba Fett', 30, 2, 5, 'boba-headshot.png', ''));
-	this.characters.push(new Character(3, 'Yoda', 40, 1, 2, 'yoda-headshot.png', ''));
+	this.characters.push(new Character(0, 'Luke', 10, 3, 3, 'luke-headshot.png', 'luke.jpg'));
+	this.characters.push(new Character(1, 'Darth Vader', 20, 4, 4, 'vader-headshot.png', 'vader.jpg'));
+	this.characters.push(new Character(2, 'Boba Fett', 30, 2, 5, 'boba-headshot.png', 'boba.jpg'));
+	this.characters.push(new Character(3, 'Yoda', 40, 1, 2, 'yoda-headshot.png', 'yoda.jpg'));
 
 	this.maxHealthPoints = 0;
 	this.maxBaseAttackPower = 0;
@@ -90,11 +90,13 @@ Game.prototype.resolveAttack = function(char1, char2) {
 Game.prototype.selectPlayer = function(characterId) {
 	for (i in this.characters) {
 		if (this.characters[i].id === characterId) {
+			console.log('selected player ' + this.characters[i].name);
+
 			// set player variable
 			this.player = this.characters[i];
 
 			// remove player from characters
-			this.characters.splice(i);
+			this.characters.splice(i, 1);
 
 			// set gameState
 			this.gameState = this.STATE_DEFENDER_SELECT;
@@ -105,9 +107,22 @@ Game.prototype.selectPlayer = function(characterId) {
 }
 
 Game.prototype.selectDefender = function(characterId) {
-	//todo: set defender variable
-	//todo: remove defender variable from characters
-	//todo: set gameState to inBattle
+	for (i in this.characters) {
+		if (this.characters[i].id === characterId) {
+			console.log('selected defender ' + this.characters[i].name);
+
+			// set defender variable
+			this.defender = this.characters[i];
+
+			// remove defender from characters
+			this.characters.splice(i, 1);
+
+			// set gameState
+			this.gameState = this.STATE_IN_BATTLE;
+
+			return;
+		}
+	}
 }
 
 Game.prototype.updateGameState = function() {
@@ -137,16 +152,34 @@ $(document).ready(function() {
 	game.setup();
 
 	buildUi();
-
 	updateUi();
+
+	$('.thumb-character-select').on('click', function() {
+		switch(game.gameState){
+			case game.STATE_DEFENDER_SELECT:
+				game.selectDefender($(this).data('character-id'));
+				break;
+			case game.STATE_CHARACTER_SELECT:
+				game.selectPlayer($(this).data('character-id'));
+				buildPlayerPanel();				
+				break;
+			default:
+				console.log('You are not supposed to be clicking that right now...');
+				break;
+		}
+
+		updateUi();
+	});
 });
+
+
 
 function buildUi() {
 	// draw character panels in character select row
 	var charSelect = $('#character-select');
 
 	for (i in game.characters) {
-		var panel = buildCharacterPanel(game.characters[i]);
+		var panel = buildCharacterPanel(game.characters[i], 'col-md-3 col-sm-3 col-xs-3');
 		charSelect.append(panel);
 	}
 }
@@ -165,21 +198,22 @@ function buildProgressBar(progressValue, progressType) {
 	return progress;
 }
 
-function buildCharacterPanel(character) {
+function buildCharacterPanel(character, panelClass) {
 	// headshot
 	var img = $('<img>');
 	img.addClass('headshot');
 	img.attr('src', 'assets/images/' + character.imgHeadshot);
 
 	var imgContainer = $('<a></a>');
-	imgContainer.addClass('thumbnail');
+	imgContainer.addClass('thumbnail thumb-character-select');
 	imgContainer.attr('href','#');
+	imgContainer.data('character-id', character.id);
 	imgContainer.append(img);
 
 	// stat bars
-	var healthPoints = buildProgressBar(parseInt(character.healthPoints/game.maxHealthPoints*100), 'progress-bar-success');
-	var baseAttackPower = buildProgressBar(character.baseAttackPower/game.maxBaseAttackPower*100, 'progress-bar-warning');
-	var counterAttackPower = buildProgressBar(character.counterAttackPower/game.maxCounterAttackPower*100, 'progress-bar-danger');
+	var healthPoints = buildProgressBar(character.healthPoints / game.maxHealthPoints * 100, 'progress-bar-success');
+	var baseAttackPower = buildProgressBar(character.baseAttackPower / game.maxBaseAttackPower * 100, 'progress-bar-warning');
+	var counterAttackPower = buildProgressBar(character.counterAttackPower / game.maxCounterAttackPower * 100, 'progress-bar-danger');
 
 	// panel header
 	var panelHeader = $('<div class="panel-heading"><h4>' + character.name + '</h4></div>');
@@ -196,37 +230,75 @@ function buildCharacterPanel(character) {
 
 	// panel
 	var panel = $('<div class="panel panel-default"></div>');
-	panel.id = character.id;
 	panel.append(panelHeader);
 	panel.append(panelBody);
 
 	// col containing character
-	var characterPanel = $('<div class="col-md-3 col-sm-3 col-xs-3"></div>');
+	var characterPanel = $('<div class="' + panelClass + '"></div>');
 	characterPanel.append(panel);
-	//todo: set data character id
 
 	return characterPanel;
+}
+
+function buildPlayerPanel() {
+	var playerPanel = $('#player-panel');
+	playerPanel.empty();
+	playerPanel.append(buildCharacterPanel(game.player, 'col-md-12 col-sm-12 col-xs-12'));
+}
+
+function buildDefenderSelect() {
+	var defenderPanel = $('#defender-panel');
+	defenderPanel.empty();
+
+	for(i in game.characters) {
+		var row = $('<div class="row"></div>');
+		row.append(buildCharacterPanel(game.characters[i], 'col-md-12 col-sm-12 col-xs-12'));
+		defenderPanel.append(row);
+	}
 }
 
 function updateUi(){
 	switch(game.gameState){
 		case game.STATE_VICTORY:
 			//todo: show victory message and reset button
+
 			break;
 		case game.STATE_GAME_OVER:
-			//show failure message and reset button
+			//todo: show failure message and reset button
+
 			break;
 		case game.STATE_IN_BATTLE:
+			// hide defender select
+			$('#defender-panel').hide();
+
+			// show battle button
+			$('#row-battle-button').show();
 			break;
 		case game.STATE_DEFENDER_SELECT:
-			//todo: hide character select row
+			// hide character select row
+			$('#row-character-select').hide();
+
+			// show battle area
+			$('#row-battle').show();
+
+			// update defender select
+			buildDefenderSelect();
+
+			// show defender select
+			$('#defender-panel').show();
+
+			// hide battle button
+			$('#row-battle-button').hide();
 			break;
 		case game.STATE_CHARACTER_SELECT:
-			//todo: show character select row
-			$('#character-select').show();
+			// show character select row
+			$('#row-character-select').show();
+
+			// hide battle area
+			$('#row-battle').hide();
 			break;
 		default:
-			console.log('how did we get here?');
+			console.log('How did we get here?');
 			break;
 	}
 }
