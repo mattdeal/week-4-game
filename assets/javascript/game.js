@@ -1,4 +1,4 @@
-// character class
+	// character class
 // healthPoints, baseAttackPower, attackPower, counterAttackPower
 
 // game class
@@ -7,6 +7,27 @@
 // resolveAttack(character1, character2)
 // player (character)
 // defenders[] (character)
+
+// BEGIN Character //
+
+function Character(id, name, healthPoints, baseAttackPower, counterAttackPower, imgHeadshot, imgFull) {
+	this.id = id;
+	this.healthPoints = healthPoints;
+	this.baseAttackPower = baseAttackPower;
+	this.attackPower = baseAttackPower;
+	this.counterAttackPower = counterAttackPower;
+	this.imgHeadshot = imgHeadshot;
+	this.imgFull = imgFull;
+	this.name = name;
+}
+
+Character.prototype.isDead = function {
+	return (this.healthPoints < 1);
+}
+
+// END Character //
+
+// BEGIN Game //
 
 function Game() {
 	var STATE_CHARACTER_SELECT = 0;
@@ -19,68 +40,122 @@ function Game() {
 
 	var characters = [];
 	var player;
-	var defender;
+	var defender;	
+}
 
-	function setup() {
-		// create characters - id, hp, atk, counter
-		characters.push(new Character(0, 10, 4, 5));
-		characters.push(new Character(1, 20, 3, 4));
-		characters.push(new Character(2, 30, 2, 3));
-		characters.push(new Character(3, 40, 1, 2));
+Game.prototype.setup = function() {
+	// create characters - id, name, hp, atk, counter, imgHeadshot, imgFull
+	//todo: imgFull
+	characters.push(new Character(0, 'Luke', 10, 4, 5, 'luke-headshot.png', ''));
+	characters.push(new Character(1, 'Darth Vader', 20, 3, 4, 'vader-headshot.png', ''));
+	characters.push(new Character(2, 'Boba Fett', 30, 2, 3, 'boba-headshot.png', ''));
+	characters.push(new Character(3, 'Yoda', 40, 1, 2, 'yoda-headshot.png', ''));
 
-		// reset player
-		player = null;
+	// reset player
+	player = null;
 
-		// reset defender
-		defender = null;
+	// reset defender
+	defender = null;
 
-		// reset gameState
-		gameState = STATE_CHARACTER_SELECT;
+	// reset gameState
+	gameState = STATE_CHARACTER_SELECT;
+}
+
+Game.prototype.resolveAttack = function(char1, char2) {
+	char2.healthPoints -= char1.attackPower;
+	char1.healthPoints -= char2.counterAttackPower;
+	char1.attackPower += char1.baseAttackPower;
+
+	updateGameState();
+}
+
+Game.prototype.selectPlayer = function(characterId) {
+	//todo: set player variable
+	player 
+	//todo: remove player variable from characters
+	//todo: set gameState to select defender
+}
+
+Game.prototype.selectDefender = function(characterId) {
+	//todo: set defender variable
+	//todo: remove defender variable from characters
+	//todo: set gameState to inBattle
+}
+
+Game.prototype.updateGameState = function() {
+	if (player.healthPoints < 1){
+		// todo: player is dead
+		// todo: set gameState to gameOver
 	}
 
-	function resolveAttack(char1, char2) {
-		char2.healthPoints -= char1.attackPower;
-		char1.healthPoints -= char2.counterAttackPower;
-		char1.attackPower += char1.baseAttackPower;
-
-		updateGameState();
-	}
-
-	function selectPlayer(characterId) {
-		//todo: set player variable
-		//todo: remove player variable from characters
-		//todo: set gameState to select defender
-	}
-
-	function selectDefender(characterId) {
-		//todo: set defender variable
-		//todo: remove defender variable from characters
-		//todo: set gameState to inBattle
-	}
-
-	function updateGameState() {
-		if (player.healthPoints < 1){
-			// todo: player is dead
-			// todo: set gameState to gameOver
-		}
-
-		if (defender.healthPoints < 1) {
-			// current defender is dead
-			if (characters.length < 1) {
-				// todo: player wins
-				// todo: set gameState to victory
-			} else {
-				// todo: re-enable defender select
-				// todo: set gameState to selectDefender
-			}
+	if (defender.healthPoints < 1) {
+		// current defender is dead
+		if (characters.length < 1) {
+			// todo: player wins
+			// todo: set gameState to victory
+		} else {
+			// todo: re-enable defender select
+			// todo: set gameState to selectDefender
 		}
 	}
 }
 
-function Character(id, healthPoints, baseAttackPower, counterAttackPower) {
-	this.id = id;
-	this.healthPoints = healthPoints;
-	this.baseAttackPower = baseAttackPower;
-	this.attackPower = baseAttackPower;
-	this.counterAttackPower = counterAttackPower;
+var game;
+
+$(document).ready(function() {
+	console.log('document ready');
+
+	game = new Game();
+	game.setup();
+
+	buildUi();
+
+	updateUi();
+});
+
+function buildUi() {
+	//todo: draw character panels in character select row
+	var charSelect = $('#character-select');
+
+	for (i in game.characters) {
+		var panel = buildCharacterPanel(game.characters[i]);
+		charSelect.append(panel);
+	}
+
+	console.log('end buildUi');
 }
+
+function buildCharacterPanel(character) {
+	var img = $('<img>');
+	img.addClass('headshot');
+	img.attr('src', 'assets/images/' + character.imgHeadshot);
+
+	var panel = $('<div>');
+	panel.id = character.id;
+	panel.addClass('col-md-3 col-sm-3 col-xs-3');
+	panel.append(img);
+}
+
+function updateUi(){
+	switch(game.gameState){
+		case game.STATE_VICTORY:
+			//todo: show victory message and reset button
+			break;
+		case game.STATE_GAME_OVER:
+			//show failure message and reset button
+			break;
+		case game.STATE_IN_BATTLE:
+			break;
+		case game.STATE_DEFENDER_SELECT:
+			//todo: hide character select row
+			break;
+		case game.STATE_CHARACTER_SELECT:
+			//todo: show character select row
+			$('#character-select').show();
+			break;
+		default:
+			console.log('how did we get here?');
+			break;
+	}
+}
+
