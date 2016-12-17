@@ -146,6 +146,8 @@ Game.prototype.updateGameState = function() {
 // END Game
 
 var game;
+var classTimer;
+var danceTimer;
 
 $(document).ready(function() {
 	game = new Game();
@@ -184,10 +186,21 @@ $(document).ready(function() {
 		setTimeout(function() {
 			defender.css('transform', 'rotate(-30deg)');
 			player.css('transform', 'rotate(30deg)');
-		} , 1000);
+		} , 500);
 		
 		// delay ui update
-		setTimeout(updateUi, 2000);
+		setTimeout(updateUi, 1500);
+
+		$(this).attr('disabled', true);
+	});
+
+	$('#reset-btn').on('click', function() {
+		clearInterval(classTimer);
+		clearInterval(danceTimer);
+
+		game.setup();
+
+		updateUi();
 	});
 });
 
@@ -309,57 +322,71 @@ function buildBattleImage(character, thumbClass) {
 function buildBattle() {
 	$('#player').empty().append(buildBattleImage(game.player, 'battle-pic-player'));
 	$('#defender').empty().append(buildBattleImage(game.defender, 'battle-pic-defender'));
+	$('#battle-btn').attr('disabled', false);
+}
+
+function beginTheDance(character) {
+	$('#victory-dance').empty().append(buildBattleImage(character, 'battle-pic-dancer').attr('id', 'dancer'));
+	danceTimer = setInterval(doTheDance, 3000);
+	classTimer = setInterval(function () { $('#dancer').toggleClass('battle-pic-player'); }, 3000);
+}
+
+function doTheDance() {
+	var dancer = $('#victory-dance');
+
+	dancer.css('transform', 'rotate(-30deg)');
+	setTimeout(function() { dancer.css('transform', 'rotate(30deg)'); } , 500);
 }
 
 function updateUi(){
 	switch(game.gameState){
 		case game.STATE_VICTORY:
-			//todo: show victory message and reset button
-			$('#battle-info').html('<div class="alert alert-success">VICTORY!!!</div>');
+			$('#row-character-select').hide();
+			$('#row-defenders').hide();
+			$('#row-battle').hide();
+			$('#row-game-over').show();
+
+			beginTheDance(game.player);
+
+			$('#battle-info').html('<div class="alert alert-success"><h1 class="text-center">VICTORY!!!</h1></div>');
 
 			break;
 		case game.STATE_GAME_OVER:
-			//todo: show failure message and reset button
-			$('#battle-info').html('<div class="alert alert-danger">You have died.</div>');
+			$('#row-character-select').hide();
+			$('#row-defenders').hide();
+			$('#row-battle').hide();
+			$('#row-game-over').show();
+
+			beginTheDance(game.defender);
+
+			$('#battle-info').html('<div class="alert alert-danger"><h1 class="text-center">You have died.</h1></div>');
 
 			break;
 		case game.STATE_IN_BATTLE:
 			//update battle
 			buildBattle();
 
-			// hide defender select
+			$('#row-character-select').hide();
 			$('#row-defenders').hide();
-
-			// show battle button
 			$('#row-battle').show();
+			$('#row-game-over').hide();
 
 			break;
 		case game.STATE_DEFENDER_SELECT:
-			// hide character select row
 			$('#row-character-select').hide();
-
-			// show battle area
 			$('#row-defenders').show();
+			$('#row-battle').hide();
+			$('#row-game-over').hide();
 
 			// update defender select
 			buildDefenderSelect();
 
-			// show defender select
-			$('#defender-panel').show();
-
-			// hide battle area
-			$('#row-battle').hide();
-
 			break;
 		case game.STATE_CHARACTER_SELECT:
-			// show character select row
 			$('#row-character-select').show();
-
-			// hide defender select \
 			$('#row-defenders').hide();
-
-			// hide battle area
 			$('#row-battle').hide();
+			$('#row-game-over').hide();
 
 			break;
 		default:
@@ -367,4 +394,3 @@ function updateUi(){
 			break;
 	}
 }
-

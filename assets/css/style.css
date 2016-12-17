@@ -8,3 +8,12 @@
     -khtml-transform: scale(-1, 1);
     -ms-transform: scale(-1, 1);
 }
+
+.thumbnail {
+	border-width: 0px !important;
+	background-color: none;
+}
+
+body {
+	background-image: url('../images/background.png');
+}

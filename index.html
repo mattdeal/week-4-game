@@ -4,13 +4,8 @@
 	<title></title>
 	<!-- CSS -->
 	<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
-	<!-- Bootstrap -->
-	<link 
-	rel="stylesheet" 
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
-	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
-	crossorigin="anonymous">
 	<!-- jQuery -->
 	<script 
 	src="http://code.jquery.com/jquery-3.1.1.js" 
@@ -23,7 +18,7 @@
 <div class="container">
 	<div id="row-character-select" class="row">
 		<div class="col-md-12 col-sm-12">
-			<h1>Character Select</h1>
+			<h1 class="text-center">Character Select</h1>
 		</div>
 		<div class="col-md-12 col-sm-12">
 			<div id="character-select" class="row"></div>
@@ -46,6 +41,7 @@
 			</div>
 		</div> <!-- End Defender column -->		
 	</div> <!-- End Defender Row -->
+
 	<div id="row-battle" class="row">
 		<div class="col-md-12 col-sm-12 col-xs-12">
 			<div class="row">
@@ -59,12 +55,31 @@
 					<button id="battle-btn" class="btn btn-danger btn-block">Battle!</button>
 				</div>
 			</div> <!-- End Battle Button Row -->
-
-			<div class="row">
-				<div id="battle-info" class="col-md-12 col-sm-12 col-xs-12"></div>
-			</div> <!-- End Battle Info -->
 		</div> <!--- End Battle Row -->
 	</div>
+
+	<div id="row-game-over" class="row">
+		<div class="col-md-12">
+			<div class="row">
+				<div id="battle-info" class="col-md-12 col-sm-12 col-xs-12"></div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-4 col-sm-hidden col-xs-hidden"></div>
+				<div class="col-md-4 col-sm-12 col-xs-12">
+					<div id="victory-dance"></div>
+				</div>
+				<div class="col-md-4 col-sm-hidden col-xs-hidden"></div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-12 col-sm-12 col-xs-12">
+					<button id="reset-btn" class="btn btn-info btn-block">Play Again!</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 </div> <!-- End container -->
 </body>
 </html>
