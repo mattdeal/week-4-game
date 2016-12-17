@@ -247,7 +247,7 @@ function buildCharacterPanel(character, thumbClass, panelClass) {
 	var counterAttackPower = buildProgressBar(character.counterAttackPower / game.maxCounterAttackPower * 100, 'progress-bar-danger');
 
 	// panel header
-	var panelHeader = $('<div class="panel-heading"><h4>' + character.name + '</h4></div>');
+	var panelHeader = $('<div class="panel-heading"><h5 class="text-center">' + character.name + '</h5></div>');
 
 	// panel body
 	var panelBody = $('<div class="panel-body"></div>');
@@ -304,7 +304,6 @@ function buildDefenderSelect() {
 }
 
 function buildBattleImage(character, thumbClass) {
-	// full pic
 	var img = $('<img>');
 	img.addClass('battle-pic');
 	img.attr('src', 'assets/images/' + character.imgFull);
@@ -322,20 +321,25 @@ function buildBattleImage(character, thumbClass) {
 function buildBattle() {
 	$('#player').empty().append(buildBattleImage(game.player, 'battle-pic-player'));
 	$('#defender').empty().append(buildBattleImage(game.defender, 'battle-pic-defender'));
+
+	//todo: show health bars for each character
+
 	$('#battle-btn').attr('disabled', false);
 }
 
 function beginTheDance(character) {
 	$('#victory-dance').empty().append(buildBattleImage(character, 'battle-pic-dancer').attr('id', 'dancer'));
-	danceTimer = setInterval(doTheDance, 3000);
-	classTimer = setInterval(function () { $('#dancer').toggleClass('battle-pic-player'); }, 3000);
+	danceTimer = setInterval(doTheDance, 1500);
+	classTimer = setInterval(function () { $('#dancer').toggleClass('battle-pic-player'); }, 1000);
+
+	//todo: play audio
 }
 
 function doTheDance() {
 	var dancer = $('#victory-dance');
 
 	dancer.css('transform', 'rotate(-30deg)');
-	setTimeout(function() { dancer.css('transform', 'rotate(30deg)'); } , 500);
+	setTimeout(function() { dancer.css('transform', 'rotate(30deg)'); } , 300);
 }
 
 function updateUi(){

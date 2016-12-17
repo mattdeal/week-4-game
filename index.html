@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>War Stars</title>
 	<!-- CSS -->
 	<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
@@ -16,12 +16,17 @@
 </head>
 <body>
 <div class="container">
-	<div id="row-character-select" class="row">
-		<div class="col-md-12 col-sm-12">
-			<h1 class="text-center">Character Select</h1>
+	<div class="row">
+		<div class="col-md-12 col-sm-12 col-xs-12">
+			<h1 class="text-center">War Stars</h1>
 		</div>
-		<div class="col-md-12 col-sm-12">
-			<div id="character-select" class="row"></div>
+	</div>
+	<div id="row-character-select" class="row">
+		<div class="panel panel-primary">
+			<div class="panel-heading"><h4 class="text-center">Character Select</h4></div>
+			<div class="panel-body">
+				<div id="character-select" class="row"></div>
+			</div>
 		</div>
 	</div> <!-- End Character Select Row -->
 
@@ -45,9 +50,10 @@
 	<div id="row-battle" class="row">
 		<div class="col-md-12 col-sm-12 col-xs-12">
 			<div class="row">
-				<!-- todo: show characters on either side -->
-				<div id="player" class="col-md-6 col-sm-6 col-xs-6"></div>
-				<div id="defender" class="col-md-6 col-sm-6 col-xs-6"></div>
+				<div class="col-md-2 col-sm-2 col-xs-2"></div>
+				<div id="player" class="col-md-4 col-sm-4 col-xs-4"></div>
+				<div id="defender" class="col-md-4 col-sm-4 col-xs-4"></div>
+				<div class="col-md-2 col-sm-2 col-xs-2"></div>
 			</div> <!-- End Battle Character Row -->
 
 			<div id="row-battle-button" class="row">

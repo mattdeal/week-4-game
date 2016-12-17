@@ -11,7 +11,7 @@
 
 .thumbnail {
 	border-width: 0px !important;
-	background-color: none;
+	background-color: transparent;
 }
 
 body {
