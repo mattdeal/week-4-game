@@ -1,17 +1,8 @@
-	// character class
-// healthPoints, baseAttackPower, attackPower, counterAttackPower
-
-// game class
-// GAME_STATES - Character Select, Defender Select, In Battle, Victory, Game Over
-// initialize() - create characters, set game state
-// resolveAttack(character1, character2)
-// player (character)
-// defenders[] (character)
-
 // BEGIN Character //
 
 function Character(id, name, healthPoints, baseAttackPower, counterAttackPower, imgHeadshot, imgFull) {
 	this.id = id;
+	this.baseHealthPoints = healthPoints;
 	this.healthPoints = healthPoints;
 	this.baseAttackPower = baseAttackPower;
 	this.attackPower = baseAttackPower;
@@ -35,20 +26,16 @@ function Game() {
 	this.STATE_IN_BATTLE = 2;
 	this.STATE_VICTORY = 3;
 	this.STATE_GAME_OVER = 4;
-
 	this.gameState;
 	this.characters;
 	this.player;
 	this.defender;	
-
 	this.maxHealthPoints;
 	this.maxBaseAttackPower;
 	this.maxCounterAttackPower;
 }
 
 Game.prototype.setup = function() {
-	// create characters - id, name, hp, atk, counter, imgHeadshot, imgFull
-	//todo: imgFull
 	this.characters = [];
 	this.characters.push(new Character(0, 'Luke', 10, 3, 3, 'luke-headshot.png', 'luke.jpg'));
 	this.characters.push(new Character(1, 'Darth Vader', 20, 4, 4, 'vader-headshot.png', 'vader.jpg'));
@@ -64,10 +51,6 @@ Game.prototype.setup = function() {
 		this.maxBaseAttackPower < this.characters[i].attackPower ? this.maxBaseAttackPower = this.characters[i].attackPower : null;
 		this.maxCounterAttackPower < this.characters[i].counterAttackPower ? this.maxCounterAttackPower = this.characters[i].counterAttackPower : null;
 	}
-
-	// console.log('maxHealthPoints = ' + this.maxHealthPoints);
-	// console.log('maxBaseAttackPower = ' + this.maxBaseAttackPower);
-	// console.log('maxCounterAttackPower = ' + this.maxCounterAttackPower);
 
 	// reset player
 	this.player = null;
@@ -318,11 +301,29 @@ function buildBattleImage(character, thumbClass) {
 	return imgContainer;
 }
 
-function buildBattle() {
-	$('#player').empty().append(buildBattleImage(game.player, 'battle-pic-player'));
-	$('#defender').empty().append(buildBattleImage(game.defender, 'battle-pic-defender'));
+function buildBattleHealthBar(character) {
+	// <div class="progress">
+	//   <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+	//     60%
+	//   </div>
+	// </div>
+	var hpPercent = character.healthPoints / character.baseHealthPoints * 100;
+	var progress = $('<div class="progress"></div>');
+	progress.append($('<div class="progress-bar progress-bar-success" role="progressbar" style="width: ' + hpPercent + '%;">' + character.healthPoints + '</div>'));
 
-	//todo: show health bars for each character
+	return progress;
+}
+
+function buildBattle() {
+	$('#player')
+		.empty()
+		.append(buildBattleImage(game.player, 'battle-pic-player'))
+		.append(buildBattleHealthBar(game.player));
+
+	$('#defender')
+		.empty()
+		.append(buildBattleImage(game.defender, 'battle-pic-defender'))
+		.append(buildBattleHealthBar(game.defender));
 
 	$('#battle-btn').attr('disabled', false);
 }
