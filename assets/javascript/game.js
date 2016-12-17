@@ -110,17 +110,16 @@ Game.prototype.selectDefender = function(characterId) {
 
 Game.prototype.updateGameState = function() {
 	if (this.player.healthPoints < 1) {
+		// player died
 		this.gameState = this.STATE_GAME_OVER;
-		console.log('You died.');
-	}
-
-	if (this.defender.healthPoints < 1) {
+	} else if (this.defender.healthPoints < 1) {
+		// defender died
 		if (this.characters.length < 1) {
+			// no defenders left, player wins
 			this.defender = null;
 			this.gameState = this.STATE_VICTORY;
-			console.log('VICTORY!!!');
 		} else {
-			console.log( this.player.name + ' defeated ' + this.defender.name);
+			// more defenders, select another defender
 			this.gameState = this.STATE_DEFENDER_SELECT;
 		}
 	}
@@ -309,7 +308,12 @@ function buildBattleHealthBar(character) {
 	// </div>
 	var hpPercent = character.healthPoints / character.baseHealthPoints * 100;
 	var progress = $('<div class="progress"></div>');
-	progress.append($('<div class="progress-bar progress-bar-success" role="progressbar" style="width: ' + hpPercent + '%;">' + character.healthPoints + '</div>'));
+	progress
+		.append($('<div class="progress-bar progress-bar-success" role="progressbar" style="width: ' 
+			+ hpPercent 
+			+ '%;">' 
+			+ character.healthPoints 
+			+ '</div>'));
 
 	return progress;
 }
