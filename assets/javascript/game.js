@@ -79,10 +79,10 @@ Game.prototype.setup = function() {
 	this.gameState = this.STATE_CHARACTER_SELECT;
 }
 
-Game.prototype.resolveAttack = function(char1, char2) {
-	char2.healthPoints -= char1.attackPower;
-	char1.healthPoints -= char2.counterAttackPower;
-	char1.attackPower += char1.baseAttackPower;
+Game.prototype.resolveAttack = function() {
+	this.defender.healthPoints -= this.player.attackPower;
+	this.player.healthPoints -= this.defender.counterAttackPower;
+	this.player.attackPower += this.player.baseAttackPower;
 
 	this.updateGameState();
 }
@@ -127,18 +127,23 @@ Game.prototype.selectDefender = function(characterId) {
 
 Game.prototype.updateGameState = function() {
 	if (this.player.healthPoints < 1){
+		console.log('you died');
 		// todo: player is dead
 		// todo: set gameState to gameOver
 	}
 
 	if (this.defender.healthPoints < 1) {
 		// current defender is dead
+		console.log('current defender is dead');
+
 		if (this.characters.length < 1) {
 			// todo: player wins
 			// todo: set gameState to victory
+			console.log('you win');
 		} else {
 			// todo: re-enable defender select
 			// todo: set gameState to selectDefender
+			console.log('continue the battle');
 		}
 	}
 }
@@ -170,16 +175,40 @@ $(document).ready(function() {
 
 		updateUi();
 	});
+
+	$('#battle-btn').on('click', function() {
+		game.resolveAttack();
+		//todo: animate battle
+		console.log('did it work?');
+
+		var player = $($('.battle-pic')[0]);
+		var defender = $($('.battle-pic')[1]);
+
+		player.css('transform', 'rotate(-30deg)');
+		defender.css('transform', 'rotate(30deg)');
+
+		setTimeout(function() {
+			defender.css('transform', 'rotate(-30deg)');
+			player.css('transform', 'rotate(30deg)');
+		} , 1000);
+
+		
+		// this kind of works...
+		// $($('.battle-pic')[0]).animate({ left: "+=200px" }, 2000, function() {
+		// 	$($('.battle-pic')[1]).css('transform', 'rotate(30deg)');
+		// });
+
+		// delay ui update
+		setTimeout(updateUi, 2000);
+	});
 });
-
-
 
 function buildUi() {
 	// draw character panels in character select row
 	var charSelect = $('#character-select');
 
 	for (i in game.characters) {
-		var panel = buildCharacterPanel(game.characters[i], 'col-md-3 col-sm-3 col-xs-3');
+		var panel = buildCharacterPanel(game.characters[i], 'thumb-character-select', 'col-md-3 col-sm-3 col-xs-3');
 		charSelect.append(panel);
 	}
 }
@@ -198,14 +227,15 @@ function buildProgressBar(progressValue, progressType) {
 	return progress;
 }
 
-function buildCharacterPanel(character, panelClass) {
+function buildCharacterPanel(character, thumbClass, panelClass) {
 	// headshot
 	var img = $('<img>');
 	img.addClass('headshot');
 	img.attr('src', 'assets/images/' + character.imgHeadshot);
 
 	var imgContainer = $('<a></a>');
-	imgContainer.addClass('thumbnail thumb-character-select');
+	imgContainer.addClass('thumbnail');
+	imgContainer.addClass(thumbClass);
 	imgContainer.attr('href','#');
 	imgContainer.data('character-id', character.id);
 	imgContainer.append(img);
@@ -243,7 +273,7 @@ function buildCharacterPanel(character, panelClass) {
 function buildPlayerPanel() {
 	var playerPanel = $('#player-panel');
 	playerPanel.empty();
-	playerPanel.append(buildCharacterPanel(game.player, 'col-md-12 col-sm-12 col-xs-12'));
+	playerPanel.append(buildCharacterPanel(game.player, 'thumb-player', 'col-md-12 col-sm-12 col-xs-12'));
 }
 
 function buildDefenderSelect() {
@@ -251,10 +281,46 @@ function buildDefenderSelect() {
 	defenderPanel.empty();
 
 	for(i in game.characters) {
-		var row = $('<div class="row"></div>');
-		row.append(buildCharacterPanel(game.characters[i], 'col-md-12 col-sm-12 col-xs-12'));
-		defenderPanel.append(row);
+		defenderPanel.append(buildCharacterPanel(game.characters[i], 'thumb-defender-select', 'col-md-4 col-sm-4 col-xs-4'));
 	}
+
+	$('.thumb-defender-select').on('click', function() {
+		switch(game.gameState){
+			case game.STATE_DEFENDER_SELECT:
+				game.selectDefender($(this).data('character-id'));
+				break;
+			case game.STATE_CHARACTER_SELECT:
+				game.selectPlayer($(this).data('character-id'));
+				buildPlayerPanel();				
+				break;
+			default:
+				console.log('You are not supposed to be clicking that right now...');
+				break;
+		}
+
+		updateUi();
+	});
+}
+
+function buildBattleImage(character, thumbClass) {
+	// full pic
+	var img = $('<img>');
+	img.addClass('battle-pic');
+	img.attr('src', 'assets/images/' + character.imgFull);
+
+	var imgContainer = $('<a></a>');
+	imgContainer.addClass('thumbnail');
+	imgContainer.addClass(thumbClass);
+	imgContainer.attr('href','#');
+	imgContainer.data('character-id', character.id);
+	imgContainer.append(img);
+
+	return imgContainer;
+}
+
+function buildBattle() {
+	$('#player').empty().append(buildBattleImage(game.player, 'battle-pic-player'));
+	$('#defender').empty().append(buildBattleImage(game.defender, 'battle-pic-defender'));
 }
 
 function updateUi(){
@@ -268,18 +334,22 @@ function updateUi(){
 
 			break;
 		case game.STATE_IN_BATTLE:
+			//update battle
+			buildBattle();
+
 			// hide defender select
-			$('#defender-panel').hide();
+			$('#row-defenders').hide();
 
 			// show battle button
-			$('#row-battle-button').show();
+			$('#row-battle').show();
+
 			break;
 		case game.STATE_DEFENDER_SELECT:
 			// hide character select row
 			$('#row-character-select').hide();
 
 			// show battle area
-			$('#row-battle').show();
+			$('#row-defenders').show();
 
 			// update defender select
 			buildDefenderSelect();
@@ -287,15 +357,20 @@ function updateUi(){
 			// show defender select
 			$('#defender-panel').show();
 
-			// hide battle button
-			$('#row-battle-button').hide();
+			// hide battle area
+			$('#row-battle').hide();
+
 			break;
 		case game.STATE_CHARACTER_SELECT:
 			// show character select row
 			$('#row-character-select').show();
 
+			// hide defender select \
+			$('#row-defenders').hide();
+
 			// hide battle area
 			$('#row-battle').hide();
+
 			break;
 		default:
 			console.log('How did we get here?');
