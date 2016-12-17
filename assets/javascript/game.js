@@ -126,24 +126,19 @@ Game.prototype.selectDefender = function(characterId) {
 }
 
 Game.prototype.updateGameState = function() {
-	if (this.player.healthPoints < 1){
-		console.log('you died');
-		// todo: player is dead
-		// todo: set gameState to gameOver
+	if (this.player.healthPoints < 1) {
+		this.gameState = this.STATE_GAME_OVER;
+		console.log('You died.');
 	}
 
 	if (this.defender.healthPoints < 1) {
-		// current defender is dead
-		console.log('current defender is dead');
-
 		if (this.characters.length < 1) {
-			// todo: player wins
-			// todo: set gameState to victory
-			console.log('you win');
+			this.defender = null;
+			this.gameState = this.STATE_VICTORY;
+			console.log('VICTORY!!!');
 		} else {
-			// todo: re-enable defender select
-			// todo: set gameState to selectDefender
-			console.log('continue the battle');
+			console.log( this.player.name + ' defeated ' + this.defender.name);
+			this.gameState = this.STATE_DEFENDER_SELECT;
 		}
 	}
 }
@@ -320,10 +315,12 @@ function updateUi(){
 	switch(game.gameState){
 		case game.STATE_VICTORY:
 			//todo: show victory message and reset button
+			$('#battle-info').html('<div class="alert alert-success">VICTORY!!!</div>');
 
 			break;
 		case game.STATE_GAME_OVER:
 			//todo: show failure message and reset button
+			$('#battle-info').html('<div class="alert alert-danger">You have died.</div>');
 
 			break;
 		case game.STATE_IN_BATTLE:
