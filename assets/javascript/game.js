@@ -178,9 +178,8 @@ $(document).ready(function() {
 
 	$('#battle-btn').on('click', function() {
 		game.resolveAttack();
-		//todo: animate battle
-		console.log('did it work?');
 
+		// animate the battle!
 		var player = $($('.battle-pic')[0]);
 		var defender = $($('.battle-pic')[1]);
 
@@ -191,13 +190,7 @@ $(document).ready(function() {
 			defender.css('transform', 'rotate(-30deg)');
 			player.css('transform', 'rotate(30deg)');
 		} , 1000);
-
 		
-		// this kind of works...
-		// $($('.battle-pic')[0]).animate({ left: "+=200px" }, 2000, function() {
-		// 	$($('.battle-pic')[1]).css('transform', 'rotate(30deg)');
-		// });
-
 		// delay ui update
 		setTimeout(updateUi, 2000);
 	});
